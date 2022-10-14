@@ -11,6 +11,11 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useFormik } from 'formik';
 import loginSchema from '../schemas/loginSchema';
+import {useState} from 'react';
+import { AxiosResponse } from 'axios';
+import api from '../services/api';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Snackbar from '@mui/material/Snackbar';
 
 const theme = createTheme({
     palette: {
@@ -19,14 +24,28 @@ const theme = createTheme({
 });
 
 export default function Login() {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+
     const formik = useFormik({
         initialValues: {
-            email: '',
+            username: '',
             password: '',
         },
         validationSchema: loginSchema,
-        onSubmit: (values) => {
-            console.log(values);
+        onSubmit: async ({username, password}) => {
+            setLoading(true);
+            try {
+                const { data : { token } } = await api.post<AxiosResponse<{ token: string }>>('/auth/login', {
+                    username,
+                    password
+                });
+                setShowSnackbar(true);
+            }catch(error){
+                console.log("errror: ",error);
+            }finally{
+                setLoading(false);
+            }
         },
     });
 
@@ -68,13 +87,13 @@ export default function Login() {
                             <TextField
                                 margin="normal"
                                 fullWidth
-                                label="Correo"
-                                name="email"
-                                autoComplete="email"
-                                value={formik.values.email}
+                                label="Nombre de usuario"
+                                name="username"
+                                autoComplete="username"
+                                value={formik.values.username}
                                 onChange={formik.handleChange}
-                                error={formik.touched.email && Boolean(formik.errors.email)}
-                                helperText={formik.touched.email && formik.errors.email}
+                                error={formik.touched.username && Boolean(formik.errors.username)}
+                                helperText={formik.touched.username && formik.errors.username}
                             />
                             <TextField
                                 margin="normal"
@@ -87,14 +106,15 @@ export default function Login() {
                                 error={formik.touched.password && Boolean(formik.errors.password)}
                                 helperText={formik.touched.password && formik.errors.password}
                             />
-                            <Button
-                                type="submit"
+                            <LoadingButton
                                 fullWidth
+                                type="submit"
+                                loading={loading}
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                             >
                                 Iniciar Sesión
-                            </Button>
+                            </LoadingButton>
                             <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 5 }}>
                                 {'Copyright © '}
                                 <Link color="inherit" href="https://mui.com/">
@@ -107,6 +127,12 @@ export default function Login() {
                     </Box>
                 </Grid>
             </Grid>
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={1000}
+                onClose={() => setShowSnackbar(false)}
+                message="Usuario registrado correctamente"
+            />
         </ThemeProvider>
     );
 }
