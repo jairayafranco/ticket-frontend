@@ -10,8 +10,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useFormik } from 'formik';
-import loginSchema from '../schemas/loginSchema';
-import {useState} from 'react';
+import { loginSchema } from '../schemas/schemas';
+import { useState } from 'react';
 import { AxiosResponse } from 'axios';
 import api from '../services/api';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -33,17 +33,17 @@ export default function Login() {
             password: '',
         },
         validationSchema: loginSchema,
-        onSubmit: async ({username, password}) => {
+        onSubmit: async ({ username, password }) => {
             setLoading(true);
             try {
-                const { data : { token } } = await api.post<AxiosResponse<{ token: string }>>('/auth/login', {
+                const { data: { token } } = await api.post<AxiosResponse<{ token: string }>>('/auth/login', {
                     username,
                     password
                 });
                 setShowSnackbar(true);
-            }catch(error){
-                console.log("errror: ",error);
-            }finally{
+            } catch (error) {
+                console.log("error: ", error);
+            } finally {
                 setLoading(false);
             }
         },
