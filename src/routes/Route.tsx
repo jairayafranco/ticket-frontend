@@ -1,15 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ContextProvider } from '../context/Context'
+import { RouteConfig } from '../interfaces/routes/routerInterface'
 import Login from '../views/Login'
-
-export interface RouteConfig {
-    path?: string
-    element?: React.ReactNode
-    children?: [{
-        path: string
-        element: React.ReactNode
-    }]
-}
 
 const Router: React.FC<RouteConfig> = () => {
     const routes: RouteConfig[] = [
